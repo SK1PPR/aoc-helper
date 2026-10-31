@@ -1,0 +1,351 @@
+{
+  "name": "advent-of-code-vscode",
+  "displayName": "Advent of Code",
+  "description": "Browse Advent of Code puzzles, fetch inputs, run solutions on samples, submit answers and follow leaderboards without leaving VS Code.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Education",
+    "Other"
+  ],
+  "keywords": [
+    "advent of code",
+    "aoc",
+    "competitive programming",
+    "puzzles"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "adventofcode",
+          "title": "Advent of Code",
+          "icon": "media/activity.svg"
+        }
+      ]
+    },
+    "views": {
+      "adventofcode": [
+        {
+          "id": "aoc.puzzles",
+          "name": "Puzzles"
+        },
+        {
+          "id": "aoc.leaderboards",
+          "name": "Leaderboards"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "aoc.puzzles",
+        "contents": "Sign in with your adventofcode.com session cookie to browse puzzles, track your stars and fetch your inputs.\n[Sign In](command:aoc.signIn)\nLog in on adventofcode.com, open your browser's DevTools → Application/Storage → Cookies, and copy the value of the \"session\" cookie.",
+        "when": "!aoc.signedIn"
+      }
+    ],
+    "commands": [
+      {
+        "command": "aoc.signIn",
+        "title": "Sign In (Session Cookie)",
+        "category": "Advent of Code",
+        "icon": "$(account)"
+      },
+      {
+        "command": "aoc.signOut",
+        "title": "Sign Out",
+        "category": "Advent of Code",
+        "icon": "$(sign-out)"
+      },
+      {
+        "command": "aoc.refresh",
+        "title": "Refresh",
+        "category": "Advent of Code",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "aoc.openToday",
+        "title": "Open Today's Puzzle",
+        "category": "Advent of Code",
+        "icon": "$(calendar)"
+      },
+      {
+        "command": "aoc.openPuzzle",
+        "title": "Open Puzzle…",
+        "category": "Advent of Code",
+        "icon": "$(book)"
+      },
+      {
+        "command": "aoc.fetchInput",
+        "title": "Open Input",
+        "category": "Advent of Code",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "aoc.openSolution",
+        "title": "Open Solution",
+        "category": "Advent of Code",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "aoc.runSamples",
+        "title": "Run on Samples",
+        "category": "Advent of Code",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "aoc.runInput",
+        "title": "Run on Input",
+        "category": "Advent of Code",
+        "icon": "$(play)"
+      },
+      {
+        "command": "aoc.submit",
+        "title": "Submit Answer",
+        "category": "Advent of Code",
+        "icon": "$(rocket)"
+      },
+      {
+        "command": "aoc.openInBrowser",
+        "title": "Open in Browser",
+        "category": "Advent of Code",
+        "icon": "$(link-external)"
+      },
+      {
+        "command": "aoc.addLeaderboard",
+        "title": "Add Private Leaderboard",
+        "category": "Advent of Code",
+        "icon": "$(add)"
+      },
+      {
+        "command": "aoc.removeLeaderboard",
+        "title": "Remove Leaderboard",
+        "category": "Advent of Code",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "aoc.openLeaderboard",
+        "title": "Open Leaderboard",
+        "category": "Advent of Code",
+        "icon": "$(list-ordered)"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "aoc.removeLeaderboard",
+          "when": "false"
+        },
+        {
+          "command": "aoc.openLeaderboard",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "aoc.openToday",
+          "when": "view == aoc.puzzles",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aoc.refresh",
+          "when": "view == aoc.puzzles",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aoc.signIn",
+          "when": "view == aoc.puzzles && !aoc.signedIn",
+          "group": "navigation@3"
+        },
+        {
+          "command": "aoc.signOut",
+          "when": "view == aoc.puzzles && aoc.signedIn",
+          "group": "account"
+        },
+        {
+          "command": "aoc.addLeaderboard",
+          "when": "view == aoc.leaderboards",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aoc.refresh",
+          "when": "view == aoc.leaderboards",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "aoc.openSolution",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "inline@1"
+        },
+        {
+          "command": "aoc.runInput",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "inline@2"
+        },
+        {
+          "command": "aoc.openSolution",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "1_files@1"
+        },
+        {
+          "command": "aoc.fetchInput",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "1_files@2"
+        },
+        {
+          "command": "aoc.runSamples",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "2_run@1"
+        },
+        {
+          "command": "aoc.runInput",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "2_run@2"
+        },
+        {
+          "command": "aoc.submit",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "2_run@3"
+        },
+        {
+          "command": "aoc.openInBrowser",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "3_web@1"
+        },
+        {
+          "command": "aoc.removeLeaderboard",
+          "when": "view == aoc.leaderboards && viewItem == privateLeaderboard",
+          "group": "inline"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "aoc.runSamples",
+          "when": "aoc.inDay",
+          "group": "navigation@1"
+        },
+        {
+          "command": "aoc.runInput",
+          "when": "aoc.inDay",
+          "group": "navigation@2"
+        },
+        {
+          "command": "aoc.submit",
+          "when": "aoc.inDay",
+          "group": "navigation@3"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Advent of Code",
+      "properties": {
+        "aoc.contact": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Contact info (email or repo URL) added to the `User-Agent` of every request, as [requested by Advent of Code](https://www.reddit.com/r/adventofcode/wiki/faqs/automation) for automated tools."
+        },
+        "aoc.folderTemplate": {
+          "type": "string",
+          "default": "aoc/${year}/day${dd}",
+          "markdownDescription": "Workspace-relative folder for each day. Variables: `${year}`, `${day}` (1–25), `${dd}` (zero-padded)."
+        },
+        "aoc.language": {
+          "type": "string",
+          "default": "python",
+          "markdownDescription": "Language used for new solution files. Must be a key of `#aoc.languages#`."
+        },
+        "aoc.languages": {
+          "type": "object",
+          "markdownDescription": "Languages available for solutions. `run` is a shell command run from the day folder with the input piped to stdin. Variables: `${file}`, `${input}`, `${dir}`, `${year}`, `${day}`. Optional `template` is a path (absolute or workspace-relative) to a starter file; `{{year}}` and `{{day}}` are substituted.",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "extension",
+              "run"
+            ],
+            "properties": {
+              "extension": {
+                "type": "string"
+              },
+              "run": {
+                "type": "string"
+              },
+              "template": {
+                "type": "string"
+              }
+            }
+          },
+          "default": {
+            "python": {
+              "extension": "py",
+              "run": "python3 \"${file}\" \"${input}\""
+            },
+            "javascript": {
+              "extension": "js",
+              "run": "node \"${file}\" \"${input}\""
+            },
+            "typescript": {
+              "extension": "ts",
+              "run": "npx --yes tsx \"${file}\" \"${input}\""
+            },
+            "cpp": {
+              "extension": "cpp",
+              "run": "g++ -O2 -std=c++20 -o \"${dir}/solution\" \"${file}\" && \"${dir}/solution\" \"${input}\""
+            },
+            "rust": {
+              "extension": "rs",
+              "run": "rustc -O -o \"${dir}/solution\" \"${file}\" && \"${dir}/solution\" \"${input}\""
+            },
+            "go": {
+              "extension": "go",
+              "run": "go run \"${file}\" \"${input}\""
+            }
+          }
+        },
+        "aoc.autoFetchInput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Download the input and extract the first example into sample.txt when a puzzle is opened."
+        },
+        "aoc.runTimeoutSeconds": {
+          "type": "number",
+          "default": 60,
+          "description": "Kill a running solution after this many seconds."
+        },
+        "aoc.privateLeaderboards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Private leaderboard IDs (the number in the leaderboard URL, or a join code)."
+        },
+        "aoc.showCountdown": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a status bar countdown during the last 24 hours before a puzzle unlocks."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "vscode:prepublish": "npm run compile",
+    "package": "npx --yes @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.6.0"
+  }
+}
