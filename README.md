@@ -1,0 +1,79 @@
+# Advent of Code for VS Code
+
+Solve [Advent of Code](https://adventofcode.com) without leaving the editor: read puzzles, get your inputs, run your solution on the examples and on your input, submit answers, and follow leaderboards. It works the same way the Competitive Programming Helper extension does for Codeforces.
+
+## Features
+
+- **Puzzles sidebar.** Every year from 2015 on, with your stars per day and a countdown on days that haven't unlocked yet. 2025 and later have 12 days.
+- **Puzzle view.** The puzzle rendered in a themed webview, with buttons to open the solution, open the input, run, and submit. Hover any example block and click **Save as sample** to store it as `sampleN.txt`.
+- **Inputs and samples on disk.** When you open a puzzle it downloads `input.txt` (once, then cached) and puts the first example from part one in `sample.txt`.
+- **Solution templates.** For Python, JavaScript, TypeScript, C++, Rust and Go, or your own template file.
+- **Run on samples or input.** Runs from the editor title bar, the sidebar or the puzzle view. Output streams to the *Advent of Code* output channel, along with the exit code and the run time.
+- **Submit.** After a run on your input, the extension reads the answers from the output and offers a one-click **Submit Part N**. If a submission is wrong, it remembers the answer so it can't be sent again by accident. You also see the "too high/too low" and rate-limit messages.
+- **Leaderboards.**
+  - Private leaderboards: an overall star grid like the one on the website, plus per-day results with solve times and local points.
+  - The global leaderboard for 2015–2024, overall and per day. AoC dropped the global leaderboard in 2025.
+- **Unlock countdown.** A status bar countdown in the last 24 hours before a puzzle opens, and a notification when it does.
+
+## Getting started
+
+1. `npm install && npm run compile`, then press **F5** in this folder to start an Extension Development Host. To install it permanently, run `npm run package` and then *Extensions → … → Install from VSIX*.
+2. Open the folder where you keep your solutions.
+3. Click the **Advent of Code** icon in the activity bar, then **Sign In**. Paste the value of your `session` cookie: log in on adventofcode.com, open DevTools → Application (Chrome) or Storage (Firefox) → Cookies → `session`. The cookie is kept in VS Code's secret storage. If no cookie is stored, the extension uses the `AOC_SESSION` environment variable.
+4. Set `aoc.contact` to your email or repo URL. AoC asks automated tools to identify themselves in the User-Agent.
+
+## Layout
+
+With the default `aoc.folderTemplate` (`aoc/${year}/day${dd}`):
+
+```
+aoc/2025/day01/
+  solution.py     # created from the template
+  input.txt       # your personal input (downloaded once)
+  sample.txt      # first example from the puzzle
+  sample2.txt     # any more you save from the puzzle view
+```
+
+While any file in a day folder is open, the editor title bar has **Run on Samples**, **Run on Input** and **Submit** buttons.
+
+**Don't commit `input.txt`.** AoC asks people not to share their inputs. Add `aoc/**/input.txt` to your `.gitignore`.
+
+## Answers
+
+The built-in templates print `Part 1: <answer>` and `Part 2: <answer>`. After a run on your input, the extension uses those lines. If they're missing, it takes the last two non-empty lines of output. You always see the answer before anything is sent.
+
+## Settings
+
+| Setting | Default | |
+| --- | --- | --- |
+| `aoc.contact` | `""` | Contact info for the User-Agent |
+| `aoc.folderTemplate` | `aoc/${year}/day${dd}` | Where each day's files go (`${year}`, `${day}`, `${dd}`) |
+| `aoc.language` | `python` | Language for new solutions (key of `aoc.languages`) |
+| `aoc.languages` | python, javascript, typescript, cpp, rust, go | `{ extension, run, template? }`; `run` gets `${file}`, `${input}`, `${dir}`, `${year}`, `${day}`, and the input is also piped to stdin |
+| `aoc.autoFetchInput` | `true` | Download the input and sample when a puzzle opens |
+| `aoc.runTimeoutSeconds` | `60` | Kill long-running solutions |
+| `aoc.privateLeaderboards` | `[]` | Leaderboard IDs or join codes |
+| `aoc.showCountdown` | `true` | Status bar unlock countdown |
+
+For example, to add Kotlin with a template of your own:
+
+```jsonc
+"aoc.language": "kotlin",
+"aoc.languages": {
+  "kotlin": {
+    "extension": "kts",
+    "run": "kotlinc -script \"${file}\" \"${input}\"",
+    "template": "templates/solution.kts"
+  }
+}
+```
+
+## Being a good citizen
+
+The extension follows AoC's [automation guidelines](https://www.reddit.com/r/adventofcode/wiki/faqs/automation):
+
+- It sends at most one request per second.
+- Inputs are downloaded once and never fetched again.
+- Leaderboards are cached for 15 minutes, even when you click refresh.
+- Finished puzzles are cached for good.
+- The User-Agent includes your `aoc.contact`.
