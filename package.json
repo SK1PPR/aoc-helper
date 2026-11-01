@@ -1,6 +1,6 @@
 {
-  "name": "advent-of-code-vscode",
-  "displayName": "Advent of Code",
+  "name": "aoc-helper",
+  "displayName": "AoC Helper",
   "description": "Browse Advent of Code puzzles, fetch inputs, run solutions on samples, submit answers and follow leaderboards without leaving VS Code.",
   "version": "0.1.0",
   "publisher": "skippr-khushal",

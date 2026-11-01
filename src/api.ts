@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { DayRef, decodeEntities, htmlText, sleep } from './util';
 
+const PACKAGE: { name: string; version: string } = require('../package.json');
 const BASE = 'https://adventofcode.com';
 const SESSION_KEY = 'aoc.session';
 const MIN_INTERVAL_MS = 1000;
@@ -271,7 +272,7 @@ export class AocClient {
 
   private userAgent(): string {
     const contact = vscode.workspace.getConfiguration('aoc').get<string>('contact', '').trim();
-    return `vscode-advent-of-code/0.1.0${contact ? ` (${contact})` : ''}`;
+    return `${PACKAGE.name}/${PACKAGE.version}${contact ? ` (${contact})` : ''}`;
   }
 
   /**

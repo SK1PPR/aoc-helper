@@ -34,7 +34,7 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          npx vsce package --out "advent-of-code-vscode-$version.vsix"
+          npx vsce package --out "aoc-helper-$version.vsix"
       - uses: actions/upload-artifact@v4
         with:
           name: vsix
@@ -51,7 +51,7 @@ jobs:
       contents: write # GitHub release
       id-token: write # OIDC token for trusted publishing
     env:
-      VSIX: advent-of-code-vscode-${{ needs.build.outputs.version }}.vsix
+      VSIX: aoc-helper-${{ needs.build.outputs.version }}.vsix
       VERSION: ${{ needs.build.outputs.version }}
     steps:
       - uses: actions/checkout@v4

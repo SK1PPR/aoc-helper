@@ -1,4 +1,4 @@
-# Advent of Code for VS Code
+# AoC Helper
 
 Solve [Advent of Code](https://adventofcode.com) without leaving the editor: read puzzles, get your inputs, run your solution on the examples and on your input, submit answers, and follow leaderboards. It works the same way the Competitive Programming Helper extension does for Codeforces.
 
