@@ -11,6 +11,9 @@ const PARTIAL_PUZZLE_TTL_MS = 5 * 60_000;
 
 export class AocError extends Error {}
 
+/** The stored session cookie was rejected by the site; the user has to sign in again. */
+export class SessionExpiredError extends AocError {}
+
 export interface Puzzle extends DayRef {
   title: string;
   /** Inner HTML of each `<article class="day-desc">`; part two only appears once part one is solved. */
@@ -271,8 +274,23 @@ export class AocClient {
     return `vscode-advent-of-code/0.1.0${contact ? ` (${contact})` : ''}`;
   }
 
+  /**
+   * Requests that need the stored session. An unexpected response is double-checked against the
+   * home page, so an expired cookie surfaces as SessionExpiredError instead of a raw HTTP error.
+   */
+  private async request(
+    path: string,
+    opts: { method?: 'GET' | 'POST'; body?: string; session?: string; auth?: boolean } = {},
+  ): Promise<Response> {
+    const res = await this.send(path, opts);
+    if (opts.auth && !opts.session && res.status >= 300 && res.status !== 404 && (await this.getUser()) === undefined) {
+      throw new SessionExpiredError('Your Advent of Code session has expired. Sign in again to continue.');
+    }
+    return res;
+  }
+
   /** Requests are serialized and spaced out to stay polite to the AoC servers. */
-  private request(
+  private send(
     path: string,
     opts: { method?: 'GET' | 'POST'; body?: string; session?: string; auth?: boolean } = {},
   ): Promise<Response> {

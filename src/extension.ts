@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { AocClient } from './api';
+import { AocClient, SessionExpiredError } from './api';
 import { Countdown } from './countdown';
 import { Board, LeaderboardPanel } from './leaderboardPanel';
 import { PuzzlePanel } from './puzzlePanel';
@@ -38,13 +38,25 @@ export function activate(ctx: vscode.ExtensionContext): void {
     void vscode.commands.executeCommand('setContext', 'aoc.inDay', !!(doc && files.refFromUri(doc.uri)));
   };
 
+  /** Forgets the dead cookie, which brings back the sign-in view, and offers to sign in again. */
+  async function sessionExpired(message: string): Promise<void> {
+    await api.setSession(undefined);
+    if (await vscode.window.showWarningMessage(message, 'Sign In')) {
+      await vscode.commands.executeCommand('aoc.signIn');
+    }
+  }
+
   const command = (id: string, fn: (...args: any[]) => unknown) =>
     ctx.subscriptions.push(
       vscode.commands.registerCommand(id, async (...args: unknown[]) => {
         try {
           await fn(...args);
         } catch (e) {
-          void vscode.window.showErrorMessage(errorMessage(e));
+          if (e instanceof SessionExpiredError) {
+            void sessionExpired(e.message);
+          } else {
+            void vscode.window.showErrorMessage(errorMessage(e));
+          }
         }
       }),
     );
@@ -518,6 +530,13 @@ export function activate(ctx: vscode.ExtensionContext): void {
 
   void updateSignedIn();
   updateDayContext();
+
+  // AoC cookies eventually expire; find out when the window opens rather than on the next submit.
+  void (async () => {
+    if ((await api.getSession()) && (await api.getUser().catch(() => '')) === undefined) {
+      await sessionExpired('Your Advent of Code session has expired. Sign in again to keep fetching inputs and submitting.');
+    }
+  })();
 }
 
 export function deactivate(): void {}
