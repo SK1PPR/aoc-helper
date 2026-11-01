@@ -3,7 +3,7 @@
   "displayName": "Advent of Code",
   "description": "Browse Advent of Code puzzles, fetch inputs, run solutions on samples, submit answers and follow leaderboards without leaving VS Code.",
   "version": "0.1.0",
-  "publisher": "local",
+  "publisher": "skippr-khushal",
   "license": "MIT",
   "engines": {
     "vscode": "^1.90.0"
