@@ -33,7 +33,7 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           echo "version=$version" >> "$GITHUB_OUTPUT"
-          npx vsce package --allow-missing-repository --out "advent-of-code-vscode-$version.vsix"
+          npx vsce package --out "advent-of-code-vscode-$version.vsix"
       - uses: actions/upload-artifact@v4
         with:
           name: vsix
