@@ -1,0 +1,75 @@
+name: Build and publish
+
+# Every push and PR builds the .vsix. Pushes to main also publish it, but only when the version in
+# package.json isn't on the registries yet, so bumping "version" is what cuts a release.
+#
+# Publishing uses trusted publishing (OIDC), so there are no tokens to store. Both registries need a
+# trusted publisher entry for this repository and this workflow file (release.yml), and the
+# repository variable PUBLISH must be set to "true".
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.package.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run compile
+      - name: Package
+        id: package
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          npx vsce package --allow-missing-repository --out "advent-of-code-vscode-$version.vsix"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vsix
+          path: '*.vsix'
+
+  publish:
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.PUBLISH == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: publish
+      cancel-in-progress: false
+    permissions:
+      contents: write # GitHub release
+      id-token: write # OIDC token for trusted publishing
+    env:
+      VSIX: advent-of-code-vscode-${{ needs.build.outputs.version }}.vsix
+      VERSION: ${{ needs.build.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: vsix
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish --oidc --packagePath "$VSIX" --skip-duplicate
+      - name: Publish to Open VSX (VSCodium, Cursor, Gitpod, …)
+        run: npx ovsx publish "$VSIX" --skip-duplicate
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view "v$VERSION" >/dev/null 2>&1; then
+            gh release create "v$VERSION" "$VSIX" --title "v$VERSION" --generate-notes --target "$GITHUB_SHA"
+          fi

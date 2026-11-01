@@ -78,3 +78,13 @@ The extension follows AoC's [automation guidelines](https://www.reddit.com/r/adv
 - Leaderboards are cached for 15 minutes, even when you click refresh.
 - Finished puzzles are cached for good.
 - The User-Agent includes your `aoc.contact`.
+
+## Releasing
+
+Pushing to `main` runs `.github/workflows/release.yml`. It builds the `.vsix`, and if the `version` in `package.json` hasn't been published yet, it publishes to the VS Code Marketplace and to Open VSX (VSCodium, Cursor and other editors that use it), then creates a GitHub release `vX.Y.Z` with the `.vsix` attached. Pushes that don't change the version only build. To release, bump the version (`npm version patch --no-git-tag-version`) and push.
+
+Publishing uses [trusted publishing](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#publish-with-github-actions-and-trusted-publishing) (OIDC), so no access tokens are stored in the repository. One-time setup:
+
+- **VS Code Marketplace:** on your publisher's management page, open **Trusted Publishing** and add a policy for this repository with the workflow file `release.yml` and no environment.
+- **Open VSX:** create the namespace for the publisher, then add a trusted publisher for this repository and `release.yml`.
+- **GitHub:** set the repository variable `PUBLISH` to `true` (Settings → Secrets and variables → Actions → Variables). Until then the workflow only builds.
