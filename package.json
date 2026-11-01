@@ -83,6 +83,12 @@
         "icon": "$(book)"
       },
       {
+        "command": "aoc.setUpDay",
+        "title": "Set Up Day",
+        "category": "Advent of Code",
+        "icon": "$(new-folder)"
+      },
+      {
         "command": "aoc.fetchInput",
         "title": "Open Input",
         "category": "Advent of Code",
@@ -182,7 +188,7 @@
       ],
       "view/item/context": [
         {
-          "command": "aoc.openSolution",
+          "command": "aoc.setUpDay",
           "when": "view == aoc.puzzles && viewItem == day",
           "group": "inline@1"
         },
@@ -190,6 +196,11 @@
           "command": "aoc.runInput",
           "when": "view == aoc.puzzles && viewItem == day",
           "group": "inline@2"
+        },
+        {
+          "command": "aoc.setUpDay",
+          "when": "view == aoc.puzzles && viewItem == day",
+          "group": "1_files@0"
         },
         {
           "command": "aoc.openSolution",

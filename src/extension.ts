@@ -395,6 +395,54 @@ export function activate(ctx: vscode.ExtensionContext): void {
     await vscode.window.showTextDocument(uri, { viewColumn: vscode.ViewColumn.One, preview: false });
   });
 
+  command('aoc.setUpDay', async (arg?: unknown) => {
+    if (!vscode.workspace.workspaceFolders?.length) {
+      const pick = await vscode.window.showWarningMessage(
+        'Open a folder first — puzzle inputs and solutions are stored in the workspace.',
+        'Open Folder',
+      );
+      if (pick) {
+        await vscode.commands.executeCommand('vscode.openFolder');
+      }
+      return;
+    }
+    const ref = await resolveRef(arg);
+    if (!ref) {
+      return;
+    }
+    const dir = files.dir(ref);
+    const listing = async () =>
+      new Set((await vscode.workspace.fs.readDirectory(dir).then((e) => e, () => [])).map(([name]) => name));
+    const before = await listing();
+    const signedIn = !!(await api.getSession());
+    const solution = await vscode.window.withProgress(
+      { location: vscode.ProgressLocation.Notification, title: `Setting up ${refLabel(ref)}…` },
+      async () => {
+        const uri = await files.ensureSolution(ref);
+        if (signedIn) {
+          await files.ensureInput(ref);
+          await files.ensureSample(ref, await api.getPuzzle(ref));
+        }
+        return uri;
+      },
+    );
+    const created = [...(await listing())].filter((name) => !before.has(name)).sort();
+
+    await vscode.window.showTextDocument(solution, { viewColumn: vscode.ViewColumn.One, preview: false });
+    await PuzzlePanel.show(api, files, ref, log, vscode.ViewColumn.Beside);
+
+    const where = vscode.workspace.asRelativePath(dir);
+    const summary = created.length
+      ? `${refLabel(ref)} is ready: created ${created.join(', ')} in ${where}.`
+      : `${refLabel(ref)} was already set up in ${where}.`;
+    if (signedIn) {
+      void vscode.window.showInformationMessage(summary);
+    } else if (await vscode.window.showWarningMessage(`${summary} Sign in to download your input.`, 'Sign In')) {
+      await vscode.commands.executeCommand('aoc.signIn');
+      await vscode.commands.executeCommand('aoc.setUpDay', ref);
+    }
+  });
+
   command('aoc.runSamples', (arg?: unknown) => run(arg, 'samples'));
   command('aoc.runInput', (arg?: unknown) => run(arg, 'input'));
 

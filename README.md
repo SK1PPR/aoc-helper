@@ -5,7 +5,8 @@ Solve [Advent of Code](https://adventofcode.com) without leaving the editor: rea
 ## Features
 
 - **Puzzles sidebar.** Every year from 2015 on, with your stars per day and a countdown on days that haven't unlocked yet. 2025 and later have 12 days.
-- **Puzzle view.** The puzzle rendered in a themed webview, with buttons to open the solution, open the input, run, and submit. Hover any example block and click **Save as sample** to store it as `sampleN.txt`.
+- **Puzzle view.** The puzzle rendered in a themed webview, with buttons to set up the day, open the input, run, and submit. Hover any example block and click **Save as sample** to store it as `sampleN.txt`.
+- **Set Up Day.** One click (sidebar, puzzle view or command palette) creates the day folder, a solution file from your template, `input.txt` and `sample.txt`, then opens the solution next to the puzzle.
 - **Inputs and samples on disk.** When you open a puzzle it downloads `input.txt` (once, then cached) and puts the first example from part one in `sample.txt`.
 - **Solution templates.** For Python, JavaScript, TypeScript, C++, Rust and Go, or your own template file.
 - **Run on samples or input.** Runs from the editor title bar, the sidebar or the puzzle view. Output streams to the *Advent of Code* output channel, along with the exit code and the run time.

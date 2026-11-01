@@ -7,7 +7,7 @@ import { DayRef, errorMessage, escapeHtml, sameRef } from './util';
 const COMMANDS: Record<string, string> = {
   browser: 'aoc.openInBrowser',
   input: 'aoc.fetchInput',
-  solution: 'aoc.openSolution',
+  setUp: 'aoc.setUpDay',
   runSamples: 'aoc.runSamples',
   runInput: 'aoc.runInput',
   submit: 'aoc.submit',
@@ -50,14 +50,20 @@ export class PuzzlePanel {
   ref: DayRef | undefined;
   private readonly disposables: vscode.Disposable[] = [];
 
-  static async show(api: AocClient, files: DayFiles, ref: DayRef, log: (msg: string) => void): Promise<void> {
+  static async show(
+    api: AocClient,
+    files: DayFiles,
+    ref: DayRef,
+    log: (msg: string) => void,
+    column?: vscode.ViewColumn,
+  ): Promise<void> {
     if (PuzzlePanel.current) {
-      PuzzlePanel.current.panel.reveal(undefined, false);
+      PuzzlePanel.current.panel.reveal(column, false);
     } else {
       const panel = vscode.window.createWebviewPanel(
         'aoc.puzzle',
         'Advent of Code',
-        vscode.window.activeTextEditor ? vscode.ViewColumn.Beside : vscode.ViewColumn.Active,
+        column ?? (vscode.window.activeTextEditor ? vscode.ViewColumn.Beside : vscode.ViewColumn.Active),
         { enableScripts: true, enableFindWidget: true, localResourceRoots: [] },
       );
       PuzzlePanel.current = new PuzzlePanel(panel, api, files, log);
@@ -164,7 +170,7 @@ export class PuzzlePanel {
         : '';
     const header = `<header>
       <span class="stars gold" title="${solved}/2 stars">${'★'.repeat(solved)}<span class="none">${'★'.repeat(2 - solved)}</span></span>
-      <button data-cmd="solution">Open Solution</button>
+      <button data-cmd="setUp" title="Create the day folder, solution, input.txt and sample.txt">Set Up</button>
       <button data-cmd="input">Input</button>
       <button data-cmd="runSamples">▶ Samples</button>
       <button data-cmd="runInput">▶ Input</button>
