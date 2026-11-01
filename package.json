@@ -47,7 +47,7 @@
     "viewsWelcome": [
       {
         "view": "aoc.puzzles",
-        "contents": "Sign in with your adventofcode.com session cookie to browse puzzles, track your stars and fetch your inputs.\n[Sign In](command:aoc.signIn)\nLog in on adventofcode.com, open your browser's DevTools → Application/Storage → Cookies, and copy the value of the \"session\" cookie.",
+        "contents": "Sign in with your adventofcode.com session cookie to browse puzzles, track your stars and fetch your inputs.\n[Sign In](command:aoc.signIn)\nLog in on adventofcode.com, open your browser's DevTools → Application/Storage → Cookies, and copy the value of the \"session\" cookie. Sign In picks it up from the clipboard, so there's nothing to paste.",
         "when": "!aoc.signedIn"
       }
     ],

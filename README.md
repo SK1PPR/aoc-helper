@@ -19,7 +19,7 @@ Solve [Advent of Code](https://adventofcode.com) without leaving the editor: rea
 
 1. `npm install && npm run compile`, then press **F5** in this folder to start an Extension Development Host. To install it permanently, run `npm run package` and then *Extensions → … → Install from VSIX*.
 2. Open the folder where you keep your solutions.
-3. Click the **Advent of Code** icon in the activity bar, then **Sign In**. Paste the value of your `session` cookie: log in on adventofcode.com, open DevTools → Application (Chrome) or Storage (Firefox) → Cookies → `session`. The cookie is kept in VS Code's secret storage. If no cookie is stored, the extension uses the `AOC_SESSION` environment variable.
+3. Click the **Advent of Code** icon in the activity bar, then **Sign In**. Copy the value of your `session` cookie: log in on adventofcode.com (the input box has a button that opens it), open DevTools → Application (Chrome) or Storage (Firefox) → Cookies → `session`. The extension watches the clipboard while the input box is open and signs in as soon as you copy it; if the cookie is already on the clipboard when you click Sign In, it is used immediately. The cookie is kept in VS Code's secret storage. If no cookie is stored, the extension uses the `AOC_SESSION` environment variable.
 4. Set `aoc.contact` to your email or repo URL. AoC asks automated tools to identify themselves in the User-Agent.
 
 ## Layout

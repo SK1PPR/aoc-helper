@@ -11,6 +11,7 @@ import {
   FIRST_YEAR,
   daysInYear,
   errorMessage,
+  findSession,
   formatMs,
   isUnlocked,
   latestYear,
@@ -223,24 +224,101 @@ export function activate(ctx: vscode.ExtensionContext): void {
     }
   }
 
-  command('aoc.signIn', async () => {
-    const value = await vscode.window.showInputBox({
-      title: 'Advent of Code: Sign In',
-      prompt: 'Paste the value of the "session" cookie from adventofcode.com (browser DevTools → Application/Storage → Cookies).',
-      password: true,
-      ignoreFocusOut: true,
+  /**
+   * Asks for the session cookie and resolves with it and the account name once it checks out.
+   * A cookie already on the clipboard is used straight away; otherwise the input box watches the
+   * clipboard, so copying the value in the browser is enough.
+   */
+  async function promptSession(): Promise<{ session: string; user: string } | undefined> {
+    const clipped = findSession(await vscode.env.clipboard.readText());
+    if (clipped) {
+      const user = await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Notification, title: 'Checking session cookie from clipboard…' },
+        () => api.getUser(clipped),
+      );
+      if (user) {
+        return { session: clipped, user };
+      }
+    }
+
+    const openSite: vscode.QuickInputButton = {
+      iconPath: new vscode.ThemeIcon('link-external'),
+      tooltip: 'Open adventofcode.com in your browser',
+    };
+    const input = vscode.window.createInputBox();
+    input.title = 'Advent of Code: Sign In';
+    input.prompt =
+      'Log in on adventofcode.com, open DevTools (F12) → Application (Chrome) or Storage (Firefox) → Cookies, ' +
+      'and copy the value of "session". It is picked up from the clipboard automatically.';
+    input.placeholder = 'Waiting for the session cookie on the clipboard, or paste it here';
+    input.password = true;
+    input.ignoreFocusOut = true;
+    input.buttons = [openSite];
+
+    let lastClipboard = clipped;
+    let checking = false;
+    return new Promise((resolve) => {
+      const check = async (session: string) => {
+        if (checking) {
+          return;
+        }
+        checking = true;
+        input.busy = true;
+        input.enabled = false;
+        input.validationMessage = undefined;
+        try {
+          const user = await api.getUser(session);
+          if (user) {
+            resolve({ session, user });
+            input.hide();
+            return;
+          }
+          input.validationMessage = "That session cookie didn't work. Make sure you're logged in and copied the whole value.";
+        } catch (e) {
+          input.validationMessage = errorMessage(e);
+        } finally {
+          checking = false;
+          input.busy = false;
+          input.enabled = true;
+        }
+      };
+      const pollClipboard = async () => {
+        const session = findSession(await vscode.env.clipboard.readText());
+        if (session && session !== lastClipboard) {
+          lastClipboard = session;
+          input.value = session;
+          await check(session);
+        }
+      };
+      // Some platforms (Wayland) only expose the clipboard to the focused window, so also check on refocus.
+      const timer = setInterval(() => void pollClipboard(), 1000);
+      const disposables = [
+        vscode.window.onDidChangeWindowState((state) => state.focused && void pollClipboard()),
+        input.onDidTriggerButton(() => void vscode.env.openExternal(vscode.Uri.parse('https://adventofcode.com/auth/login'))),
+        input.onDidChangeValue(() => (input.validationMessage = undefined)),
+        input.onDidAccept(() => {
+          const session = findSession(input.value) ?? input.value.trim().replace(/^session=/, '');
+          if (session) {
+            void check(session);
+          }
+        }),
+        input.onDidHide(() => {
+          clearInterval(timer);
+          disposables.forEach((d) => d.dispose());
+          input.dispose();
+          resolve(undefined);
+        }),
+      ];
+      input.show();
     });
-    const session = value?.trim().replace(/^session=/, '');
-    if (!session) {
+  }
+
+  command('aoc.signIn', async () => {
+    const result = await promptSession();
+    if (!result) {
       return;
     }
-    const user = await vscode.window.withProgress(
-      { location: vscode.ProgressLocation.Notification, title: 'Checking session…' },
-      () => api.getUser(session),
-    );
-    if (!user) {
-      throw new Error("That session cookie didn't work. Make sure you're logged in and copied the whole value.");
-    }
+    const { session, user } = result;
     await api.setSession(session);
     await updateSignedIn();
     puzzles.refresh();

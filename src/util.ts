@@ -90,6 +90,14 @@ export function escapeHtml(s: string): string {
   return s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 }
 
+/**
+ * Session cookie found in copied text: a bare value, `session=…`, a whole Cookie header or a
+ * DevTools table row. Session values are long hex strings; anything else is ignored.
+ */
+export function findSession(text: string): string | undefined {
+  return /(?:^|[^0-9a-f])([0-9a-f]{96,})(?![0-9a-f])/i.exec(text)?.[1];
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
