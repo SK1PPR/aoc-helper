@@ -3,9 +3,10 @@ name: Build and publish
 # Every push and PR builds the .vsix. Pushes to main also publish it, but only when the version in
 # package.json isn't on the registries yet, so bumping "version" is what cuts a release.
 #
-# Publishing uses trusted publishing (OIDC), so there are no tokens to store. Both registries need a
-# trusted publisher entry for this repository and this workflow file (release.yml), and the
-# repository variable PUBLISH must be set to "true".
+# Publishing uses trusted publishing (OIDC), so there are no tokens to store. Each registry needs a
+# trusted publisher entry for this repository and this workflow file (release.yml). Repository
+# variables switch publishing on: PUBLISH=true for the Marketplace and the GitHub release, plus
+# PUBLISH_OPEN_VSX=true once the Open VSX namespace is set up.
 on:
   push:
     branches: [main]
@@ -65,6 +66,7 @@ jobs:
       - name: Publish to VS Code Marketplace
         run: npx vsce publish --oidc --packagePath "$VSIX" --skip-duplicate
       - name: Publish to Open VSX (VSCodium, Cursor, Gitpod, …)
+        if: vars.PUBLISH_OPEN_VSX == 'true'
         run: npx ovsx publish "$VSIX" --skip-duplicate
       - name: GitHub release
         env:

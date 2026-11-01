@@ -87,4 +87,4 @@ Publishing uses [trusted publishing](https://code.visualstudio.com/api/working-w
 
 - **VS Code Marketplace:** on your publisher's management page, open **Trusted Publishing** and add a policy for this repository with the workflow file `release.yml` and no environment.
 - **Open VSX:** create the namespace for the publisher, then add a trusted publisher for this repository and `release.yml`.
-- **GitHub:** set the repository variable `PUBLISH` to `true` (Settings → Secrets and variables → Actions → Variables). Until then the workflow only builds.
+- **GitHub:** set the repository variable `PUBLISH` to `true` (Settings → Secrets and variables → Actions → Variables). Until then the workflow only builds. Set `PUBLISH_OPEN_VSX` to `true` as well once the Open VSX namespace is ready; until then that step is skipped. Re-running the workflow afterwards publishes the current version there too.
